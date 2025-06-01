@@ -2,7 +2,37 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiEdit3, FiCheck, FiX, FiSun, FiMoon } from 'react-icons/fi';
 
-// Import logos (you can replace these URLs with local assets or your preferred icon libs)
+// Predefined list of courses with IDs and names
+const availableCourses = [
+    { id: 'math_theory', name: 'Mathematics (Theory)' },
+    { id: 'physics_theory', name: 'Physics (Theory)' },
+    { id: 'python_theory', name: 'Python (Theory)' },
+    { id: 'network_fund', name: 'Network Fundamentals' },
+    { id: 'proj_analysis', name: 'Project Requirement Analysis' },
+    { id: 'js_theory', name: 'JavaScript (Theory)' },
+    { id: 'vue_theory', name: 'Vue.js (Theory)' },
+    { id: 'react_theory', name: 'React (Theory)' },
+    { id: 'version_control', name: 'Version Control' },
+    { id: 'ml', name: 'Machine Learning' },
+    { id: 'blockchain', name: 'Blockchain' },
+    { id: 'nosql', name: 'NoSQL' },
+    { id: 'qa_devops', name: 'QA & DevOps' },
+    { id: 'windows_server', name: 'Windows Server' },
+    { id: 'graphics', name: 'Graphics Design' },
+];
+
+// Default timetable
+const defaultTimetable = [
+    { day: 'Monday', slots: ['math_theory', 'math_theory', 'physics_theory', '-', '-', '-'] },
+    { day: 'Tuesday', slots: ['python_theory', 'python_theory', 'network_fund', '-', '-', '-'] },
+    { day: 'Wednesday', slots: ['physics_theory', 'physics_theory', 'proj_analysis', '-', '-', '-'] },
+    { day: 'Thursday', slots: ['js_theory', 'js_theory', 'vue_theory', '-', '-', '-'] },
+    { day: 'Friday', slots: ['react_theory', 'react_theory', 'version_control', '-', '-', '-'] },
+    { day: 'Saturday', slots: ['ml', 'ml', 'blockchain', 'blockchain', 'nosql', 'qa_devops'] },
+    { day: 'Sunday', slots: ['math_theory', 'math_theory', 'ml', 'blockchain', 'windows_server', 'graphics'] },
+];
+
+// Logos mapped to course names
 const logos = {
     'Mathematics (Theory)': 'https://img.icons8.com/color/24/000000/math.png',
     'Physics (Theory)': 'https://img.icons8.com/color/24/000000/physics.png',
@@ -19,36 +49,28 @@ const logos = {
     'QA & DevOps': 'https://img.icons8.com/ios-filled/24/000000/qa.png',
     'Windows Server': 'https://img.icons8.com/ios-filled/24/000000/windows-10.png',
     'Graphics Design': 'https://img.icons8.com/color/24/000000/design.png',
-    '-': null,
 };
 
-const initialTimetable = [
-    { day: 'Monday', slots: ['Mathematics (Theory)', 'Mathematics (Theory)', 'Physics (Theory)', '-', '-', '-'] },
-    { day: 'Tuesday', slots: ['Python (Theory)', 'Python (Theory)', 'Network Fundamentals', '-', '-', '-'] },
-    { day: 'Wednesday', slots: ['Physics (Theory)', 'Physics (Theory)', 'Project Requirement Analysis', '-', '-', '-'] },
-    { day: 'Thursday', slots: ['JavaScript (Theory)', 'JavaScript (Theory)', 'Vue.js (Theory)', '-', '-', '-'] },
-    { day: 'Friday', slots: ['React (Theory)', 'React (Theory)', 'Version Control', '-', '-', '-'] },
-    { day: 'Saturday', slots: ['Machine Learning', 'Machine Learning', 'Blockchain', 'Blockchain', 'NoSQL', 'QA & DevOps'] },
-    { day: 'Sunday', slots: ['Mathematics', 'Mathematics', 'Machine Learning', 'Blockchain', 'Windows Server', 'Graphics Design'] },
-];
-
 export default function Timetable() {
-    const [timetable, setTimetable] = useState(initialTimetable);
+    // Load timetable from localStorage or use default
+    const [timetable, setTimetable] = useState(() => {
+        const saved = localStorage.getItem('timetable');
+        return saved ? JSON.parse(saved) : defaultTimetable;
+    });
     const [editingIndex, setEditingIndex] = useState(null);
     const [tempSlots, setTempSlots] = useState([]);
-    const [darkMode, setDarkMode] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return window.matchMedia('(prefers-color-scheme: dark)').matches;
-        }
-        return false;
-    });
+    const [darkMode, setDarkMode] = useState(() =>
+        window.matchMedia('(prefers-color-scheme: dark)').matches
+    );
 
+    // Save timetable to localStorage when it changes
     useEffect(() => {
-        if (darkMode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+        localStorage.setItem('timetable', JSON.stringify(timetable));
+    }, [timetable]);
+
+    // Apply dark mode class to document
+    useEffect(() => {
+        document.documentElement.classList.toggle('dark', darkMode);
     }, [darkMode]);
 
     const startEditing = (index) => {
@@ -69,20 +91,21 @@ export default function Timetable() {
         setTempSlots([]);
     };
 
-    const handleInputChange = (i, value) => {
+    const handleInputChange = (slotIndex, value) => {
         const updatedSlots = [...tempSlots];
-        updatedSlots[i] = value || '-';
+        updatedSlots[slotIndex] = value;
         setTempSlots(updatedSlots);
     };
 
-    // Helper to render course with logo
-    const renderCourseWithLogo = (course) => {
-        if (!course || course === '-') return <span className="italic text-gray-400">-</span>;
-        const logoSrc = logos[course];
+    const renderCourseWithLogo = (courseId) => {
+        if (courseId === '-') return <span className="italic text-gray-400">-</span>;
+        const course = availableCourses.find((c) => c.id === courseId);
+        if (!course) return <span className="italic text-gray-400">Unknown</span>;
+        const logoSrc = logos[course.name];
         return (
             <div className="flex items-center gap-2">
-                {logoSrc && <img src={logoSrc} alt={`${course} logo`} className="w-5 h-5 object-contain" />}
-                <span>{course}</span>
+                {logoSrc && <img src={logoSrc} alt={`${course.name} logo`} className="w-5 h-5 object-contain" />}
+                <span>{course.name}</span>
             </div>
         );
     };
@@ -115,7 +138,7 @@ export default function Timetable() {
                     transition={{ delay: 0.3, duration: 0.8 }}
                     className="overflow-x-auto rounded-lg shadow-lg"
                 >
-                    <table className="min-w-full border-collapse border border-purple-300 dark:border-purple-700 transition-colors duration-500">
+                    <table className="min-w-full border-collapse border border-purple-300 dark:border-purple-700">
                         <thead className="bg-purple-600 dark:bg-purple-800 text-white">
                             <tr>
                                 <th className="p-3 text-left">Day</th>
@@ -125,50 +148,47 @@ export default function Timetable() {
                                 <th className="p-3 text-left">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 transition-colors duration-500">
+                        <tbody className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
                             {timetable.map((row, index) => (
                                 <motion.tr
-                                    key={index}
+                                    key={row.day}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.1 }}
                                     className="hover:bg-purple-50 dark:hover:bg-purple-700"
                                 >
                                     <td className="p-3 font-semibold text-purple-600 dark:text-purple-300">{row.day}</td>
-
-                                    {editingIndex === index
-                                        ? tempSlots.map((slot, i) => (
+                                    {editingIndex === index ? (
+                                        tempSlots.map((slot, i) => (
                                             <td key={i} className="p-1">
-                                                <input
-                                                    type="text"
-                                                    value={slot === '-' ? '' : slot}
+                                                <select
+                                                    value={slot}
                                                     onChange={(e) => handleInputChange(i, e.target.value)}
                                                     className="w-full border border-purple-400 dark:border-purple-600 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 dark:bg-gray-700 dark:text-gray-200"
-                                                    placeholder="Course name or -"
-                                                />
+                                                >
+                                                    <option value="-">-</option>
+                                                    {availableCourses.map((course) => (
+                                                        <option key={course.id} value={course.id}>
+                                                            {course.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                             </td>
                                         ))
-                                        : row.slots.map((slot, i) => (
-                                            <td key={i} className={`p-3 ${slot === '-' ? 'text-gray-400 italic' : ''}`}>
+                                    ) : (
+                                        row.slots.map((slot, i) => (
+                                            <td key={i} className="p-3">
                                                 {renderCourseWithLogo(slot)}
                                             </td>
-                                        ))}
-
+                                        ))
+                                    )}
                                     <td className="p-3">
                                         {editingIndex === index ? (
                                             <div className="flex gap-2">
-                                                <button
-                                                    onClick={saveEditing}
-                                                    className="text-green-600 hover:text-green-900"
-                                                    title="Save"
-                                                >
+                                                <button onClick={saveEditing} className="text-green-600 hover:text-green-900" title="Save">
                                                     <FiCheck size={20} />
                                                 </button>
-                                                <button
-                                                    onClick={cancelEditing}
-                                                    className="text-red-600 hover:text-red-900"
-                                                    title="Cancel"
-                                                >
+                                                <button onClick={cancelEditing} className="text-red-600 hover:text-red-900" title="Cancel">
                                                     <FiX size={20} />
                                                 </button>
                                             </div>
