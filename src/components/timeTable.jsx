@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FiEdit3, FiCheck, FiX, FiSun, FiMoon } from 'react-icons/fi';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Predefined list of courses with IDs and names
 const availableCourses = [
@@ -19,11 +21,12 @@ const availableCourses = [
     { id: 'qa_devops', name: 'QA & DevOps' },
     { id: 'windows_server', name: 'Windows Server' },
     { id: 'graphics', name: 'Graphics Design' },
+    { id: 'ui/ux', name: 'Ui/Ux design' },
 ];
 
 // Default timetable
 const defaultTimetable = [
-    { day: 'Monday', slots: ['math_theory', 'math_theory', 'physics_theory', '-', '-', '-'] },
+    { day: 'Monday', slots: ['math_theory', 'math_theory', 'physics_theory', 'ui/ux', '-', '-'] },
     { day: 'Tuesday', slots: ['python_theory', 'python_theory', 'network_fund', '-', '-', '-'] },
     { day: 'Wednesday', slots: ['physics_theory', 'physics_theory', 'proj_analysis', '-', '-', '-'] },
     { day: 'Thursday', slots: ['js_theory', 'js_theory', 'vue_theory', '-', '-', '-'] },
@@ -49,6 +52,7 @@ const logos = {
     'QA & DevOps': 'https://img.icons8.com/ios-filled/24/000000/qa.png',
     'Windows Server': 'https://img.icons8.com/ios-filled/24/000000/windows-10.png',
     'Graphics Design': 'https://img.icons8.com/color/24/000000/design.png',
+    'Ui/Ux design': 'https://img.icons8.com/color/24/000000/design.png',
 };
 
 export default function Timetable() {
@@ -87,6 +91,9 @@ export default function Timetable() {
         setTimetable((prev) =>
             prev.map((row, i) => (i === editingIndex ? { ...row, slots: tempSlots } : row))
         );
+        toast.success('Timetable updated successfully!', {
+            theme: darkMode ? 'dark' : 'light',
+        });
         setEditingIndex(null);
         setTempSlots([]);
     };
@@ -98,28 +105,28 @@ export default function Timetable() {
     };
 
     const renderCourseWithLogo = (courseId) => {
-        if (courseId === '-') return <span className="italic text-gray-400">-</span>;
+        if (courseId === '-') return <span className="italic text-gray-400 dark:text-gray-500">-</span>;
         const course = availableCourses.find((c) => c.id === courseId);
-        if (!course) return <span className="italic text-gray-400">Unknown</span>;
+        if (!course) return <span className="italic text-gray-400 dark:text-gray-500">Unknown</span>;
         const logoSrc = logos[course.name];
         return (
             <div className="flex items-center gap-2">
                 {logoSrc && <img src={logoSrc} alt={`${course.name} logo`} className="w-5 h-5 object-contain" />}
-                <span>{course.name}</span>
+                <span className="truncate">{course.name}</span>
             </div>
         );
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 dark:from-gray-900 dark:to-purple-900 p-6 transition-colors duration-500 flex flex-col">
-            <div className="max-w-7xl mx-auto flex-grow">
+        <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 dark:from-gray-900 dark:to-purple-900 p-4 sm:p-6 md:p-8 transition-colors duration-500 flex flex-col">
+            <div className="max-w-full mx-auto flex-grow w-full">
                 <div className="flex justify-end mb-4">
                     <button
                         onClick={() => setDarkMode(!darkMode)}
-                        className="p-2 rounded-full bg-purple-200 dark:bg-purple-700 text-purple-800 dark:text-yellow-300 focus:outline-none shadow-md hover:shadow-lg transition"
+                        className="p-2 rounded-full bg-purple-200 dark:bg-purple-700 text-purple-800 dark:text-yellow-300 focus:outline-none shadow-md hover:shadow-lg transition-colors"
                         aria-label="Toggle Dark Mode"
                     >
-                        {darkMode ? <FiSun size={24} /> : <FiMoon size={24} />}
+                        {darkMode ? <FiSun size={20} /> : <FiMoon size={20} />}
                     </button>
                 </div>
 
@@ -127,7 +134,7 @@ export default function Timetable() {
                     initial={{ y: -50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ duration: 0.6 }}
-                    className="text-4xl font-bold text-center text-purple-700 dark:text-purple-300 mb-8"
+                    className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-purple-700 dark:text-purple-300 mb-6 sm:mb-8"
                 >
                     📚 Weekly Study Timetable
                 </motion.h1>
@@ -138,83 +145,102 @@ export default function Timetable() {
                     transition={{ delay: 0.3, duration: 0.8 }}
                     className="overflow-x-auto rounded-lg shadow-lg"
                 >
-                    <table className="min-w-full border-collapse border border-purple-300 dark:border-purple-700">
-                        <thead className="bg-purple-600 dark:bg-purple-800 text-white">
-                            <tr>
-                                <th className="p-3 text-left">Day</th>
-                                {Array.from({ length: 6 }, (_, i) => (
-                                    <th key={i} className="p-3 text-left">{`${i + 1}${getHourSuffix(i + 1)} Hour`}</th>
-                                ))}
-                                <th className="p-3 text-left">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
-                            {timetable.map((row, index) => (
-                                <motion.tr
-                                    key={row.day}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.1 }}
-                                    className="hover:bg-purple-50 dark:hover:bg-purple-700"
-                                >
-                                    <td className="p-3 font-semibold text-purple-600 dark:text-purple-300">{row.day}</td>
-                                    {editingIndex === index ? (
-                                        tempSlots.map((slot, i) => (
-                                            <td key={i} className="p-1">
-                                                <select
-                                                    value={slot}
-                                                    onChange={(e) => handleInputChange(i, e.target.value)}
-                                                    className="w-full border border-purple-400 dark:border-purple-600 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 dark:bg-gray-700 dark:text-gray-200"
-                                                >
-                                                    <option value="-">-</option>
-                                                    {availableCourses.map((course) => (
-                                                        <option key={course.id} value={course.id}>
-                                                            {course.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </td>
-                                        ))
-                                    ) : (
-                                        row.slots.map((slot, i) => (
-                                            <td key={i} className="p-3">
-                                                {renderCourseWithLogo(slot)}
-                                            </td>
-                                        ))
-                                    )}
-                                    <td className="p-3">
+                    <div className="inline-block min-w-full">
+                        <table className="w-full border-collapse border border-purple-300 dark:border-purple-600 text-xs sm:text-sm md:text-base">
+                            <thead className="bg-purple-600 dark:bg-purple-800 text-white">
+                                <tr>
+                                    <th className="p-2 sm:p-3 text-left sticky left-0 bg-purple-600 dark:bg-purple-800 z-10">Day</th>
+                                    {Array.from({ length: 6 }, (_, i) => (
+                                        <th key={i} className="p-2 sm:p-3 text-left min-w-[120px] sm:min-w-[150px]">
+                                            {`${i + 1}${getHourSuffix(i + 1)} Hour`}
+                                        </th>
+                                    ))}
+                                    <th className="p-2 sm:p-3 text-left min-w-[80px]">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+                                {timetable.map((row, index) => (
+                                    <motion.tr
+                                        key={row.day}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.1 }}
+                                        className="hover:bg-purple-50 dark:hover:bg-purple-600"
+                                    >
+                                        <td className="p-2 sm:p-3 font-semibold text-purple-600 dark:text-purple-300 sticky left-0 bg-white dark:bg-gray-800 z-10">
+                                            {row.day}
+                                        </td>
                                         {editingIndex === index ? (
-                                            <div className="flex gap-2">
-                                                <button onClick={saveEditing} className="text-green-600 hover:text-green-900" title="Save">
-                                                    <FiCheck size={20} />
-                                                </button>
-                                                <button onClick={cancelEditing} className="text-red-600 hover:text-red-900" title="Cancel">
-                                                    <FiX size={20} />
-                                                </button>
-                                            </div>
+                                            tempSlots.map((slot, i) => (
+                                                <td key={i} className="p-1 sm:p-2">
+                                                    <select
+                                                        value={slot}
+                                                        onChange={(e) => handleInputChange(i, e.target.value)}
+                                                        className="w-full border border-purple-400 dark:border-purple-500 rounded px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                                                    >
+                                                        <option value="-">-</option>
+                                                        {availableCourses.map((course) => (
+                                                            <option key={course.id} value={course.id}>
+                                                                {course.name}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </td>
+                                            ))
                                         ) : (
-                                            <button
-                                                onClick={() => startEditing(index)}
-                                                className="text-purple-600 hover:text-purple-900"
-                                                title="Edit Courses"
-                                            >
-                                                <FiEdit3 size={20} />
-                                            </button>
+                                            row.slots.map((slot, i) => (
+                                                <td key={i} className="p-2 sm:p-3">
+                                                    {renderCourseWithLogo(slot)}
+                                                </td>
+                                            ))
                                         )}
+                                        <td className="p-2 sm:p-3">
+                                            {editingIndex === index ? (
+                                                <div className="flex gap-2">
+                                                    <button onClick={saveEditing} className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300" title="Save">
+                                                        <FiCheck size={16} className="sm:w-5 sm:h-5" />
+                                                    </button>
+                                                    <button onClick={cancelEditing} className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300" title="Cancel">
+                                                        <FiX size={16} className="sm:w-5 sm:h-5" />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => startEditing(index)}
+                                                    className="text-purple-600 dark:text-purple-300 hover:text-purple-800 dark:hover:text-purple-400"
+                                                    title="Edit Courses"
+                                                >
+                                                    <FiEdit3 size={16} className="sm:w-5 sm:h-5" />
+                                                </button>
+                                            )}
+                                        </td>
+                                    </motion.tr>
+                                ))}
+                            </tbody>
+                            <tfoot>
+                                <tr className="bg-purple-600 dark:bg-purple-800 text-white">
+                                    <td colSpan={8} className="text-center p-2 sm:p-3 font-semibold text-xs sm:text-sm">
+                                        Chopped By Bahirwa Frank.Dev
                                     </td>
-                                </motion.tr>
-                            ))}
-                        </tbody>
-                        <tfoot>
-                            <tr className="bg-purple-600 dark:bg-purple-800 text-white">
-                                <td colSpan={8} className="text-center p-3 font-semibold">
-                                    Chopped By Bahirwa Frank.Dev
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </motion.div>
             </div>
+
+            <ToastContainer
+                position="bottom-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                theme={darkMode ? 'dark' : 'light'}
+                className="text-xs sm:text-sm"
+            />
         </div>
     );
 }
