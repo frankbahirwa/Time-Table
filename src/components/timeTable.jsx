@@ -118,7 +118,7 @@ export default function Timetable() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 dark:from-gray-900 dark:to-purple-900 p-4 sm:p-6 md:p-8 transition-colors duration-500 flex flex-col">
+        <div className="min-h-screen m-10 bg-gradient-to-r from-blue-50 to-purple-100 dark:from-gray-900 dark:to-purple-900 p-4 sm:p-6 md:p-8 transition-colors duration-500 flex flex-col">
             <div className="max-w-full mx-auto flex-grow w-full">
                 <div className="flex justify-end mb-4">
                     <button
@@ -220,7 +220,7 @@ export default function Timetable() {
                             <tfoot>
                                 <tr className="bg-purple-600 dark:bg-purple-800 text-white">
                                     <td colSpan={8} className="text-center p-2 sm:p-3 font-semibold text-xs sm:text-sm">
-                                        Chopped By Bahirwa Frank.Dev
+                                        Chopped By <a href="https://bahirwa-frank.vercel.app/">bahirwa-frank</a>
                                     </td>
                                 </tr>
                             </tfoot>
