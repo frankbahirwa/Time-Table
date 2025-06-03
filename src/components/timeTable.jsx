@@ -118,8 +118,8 @@ export default function Timetable() {
     };
 
     return (
-        <div className="min-h-screen m-10 bg-gradient-to-r from-blue-50 to-purple-100 dark:from-gray-900 dark:to-purple-900 p-4 sm:p-6 md:p-8 transition-colors duration-500 flex flex-col">
-            <div className="max-w-full mx-auto flex-grow w-full">
+        <div className="min-h-screen bg-gradient-to-r from-blue-50 to-purple-100 dark:from-gray-900 dark:to-purple-900 p-4 sm:p-6 md:p-8 transition-colors duration-500 flex flex-col">
+            <div className="max-w-full mx-auto m-5 flex-grow w-full">
                 <div className="flex justify-end mb-4">
                     <button
                         onClick={() => setDarkMode(!darkMode)}
