@@ -219,8 +219,8 @@ export default function Timetable() {
                             </tbody>
                             <tfoot>
                                 <tr className="bg-purple-600 dark:bg-purple-800 text-white">
-                                    <td colSpan={8} className="text-center p-2 sm:p-3 font-semibold text-xs sm:text-sm">
-                                        Chopped By <a href="https://bahirwa-frank.vercel.app/">bahirwa-frank</a>
+                                    <td colSpan={8} className="text-center p-2 sm:p-3 font-semibold text-xl sm:text-sm">
+                                        Chopped By <a className='text-blue-500 text-xl' href="https://bahirwa-frank.vercel.app/">bahirwa-frank</a>
                                     </td>
                                 </tr>
                             </tfoot>
